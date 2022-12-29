@@ -195,9 +195,9 @@
         let dateSelectedCell;
         let timeSelectedCell;
         // 오늘에 해당하는 월, 일 객체
+        let realYear = date.getFullYear();
         let realMonth = date.getMonth() + 1;
         let realToDay = date.getDate();
-        console.log("realMonth: " + realMonth + "realToDay: " + realToDay);
         // 사용자가 클릭한 월, 일 객체
         let selectedMonth = null;
         let selectedDate = null;
@@ -230,12 +230,9 @@
 
             //이번달이면 0 리턴, 다음달이면 1 리턴
             function thisMonth(todayMonth, dateMonth) {
-                console.log("todayMonth : " + todayMonth + ", dateMonth : " + dateMonth);
                 if (todayMonth * 1 == dateMonth * 1) {
-                    console.log("이번달 이구요")
                     return 0;
                 }
-                console.log("다음달 이구요")
                 return 1;
             }
 
@@ -315,45 +312,98 @@
                 let endDay = "<%=endDay%>";
                 let endDate = "<%=endDate%>";
 
-                // console.log(endDate.getTime());
-
                 // 예약불가일 색상변경 및 사용자가 직접 지정한 경우------------------------
                 let etp = exchangeToPossibleDay(cnt) * 1; // etp의 값 범위: 0 ~ 6 (0일...6토)
                 // 기능 : cnt를 매개변수로 넣어 현재일이 '무슨 요일' 인지 반환(1:일,2:월,3:화,4:수,5:목,6:금,7:토)
 
-                if (nowMonth == realMonth && i < realToDay) {  // 이번달이고 오늘을 포한한 지난날
+                if (possibleDay[etp] == 1) { // 해당 일이 예약불가 요일일 경우(휴관일 체크)
                     noCount += 1;
-                // }
-                // else if (nowMonth < realMonth) {  // 지난달
-                //     noCount += 1;
-                    // else if (nowMonth > realMonth && i > realToDay) { // 다음달이고 오늘보다 일이 높은 수일떄
-                    //     noCount += 1;
-                } else if (possibleDay[etp] == 1) { // 해당 일이 예약불가 요일일 경우(휴관일 체크)
-                    noCount += 1;
-                } else if (today.getFullYear() > endYear) { // 끝나는 연도보다 클 경우
-                    noCount += 1;
-                } else if (today.getFullYear() == endYear) {    // 끝나는 연도랑 같으면서
-                    if ((today.getMonth()+1) > endMonth) {      // 끝나는 달보다 클 경우
+                }
+
+                if (today.getFullYear() == realYear) {
+                    if (nowMonth == realMonth && i < realToDay) {  // 이번달이고 오늘을 포한한 지난날
                         noCount += 1;
-                        console.log("getMonth: " + today.getMonth() + "endMonth: " + endMonth);
-                    } else if (today.getMonth()+1 == endMonth) {    // 끝나는 달과 같을 경우
-                        if (i > endDay) {                           // 끝나는 일보다 클 경우
+                    }
+                    else if (nowMonth < realMonth) {
+                        noCount += 1;
+                    }
+                }
+                else if (today.getFullYear() < realMonth) {
+                    noCount += 1;
+                }
+
+                if (today.getFullYear() < startYear) {
+                    noCount += 1;
+                }
+
+                if (today.getFullYear() == startYear) {
+                    if (nowMonth < startMonth) {
+                        noCount += 1;
+                    }
+                    else if (nowMonth == startMonth) {
+                        if (i < startDay) {
                             noCount += 1;
                         }
-                    }
-                } else if (today.getFullYear() < startYear) {       // 시작하는 연도보다 작을 경우
-                    noCount += 1;
-                } else if (today.getFullYear() == startYear) {      // 시작하는 연도와 같은 경우
-                    if (today.getMonth()+1 < startMonth) {          // 시작하는 달보다 작을 경우
-                        noCount += 1;
-                    }
-                    else if (today.getMonth()+1 == startMonth) {    // 시작하는 달과 같은 경우
-                        if (i < startDay) {                         // 시작하는 일보다 작은 경우
-                            noCount += 1;
+                        else if (i >= startDay) {
+                            // noCount = 0;
                         }
                     }
                 }
+                if (today.getFullYear() > endYear)  {
+                    noCount += 1;
+                }
 
+                if (today.getFullYear() == endYear) {
+                    if (nowMonth > endMonth) {
+                        noCount += 1;
+                    }
+                    else if (nowMonth == endMonth) {
+                        if (i > endDay) {
+                            noCount += 1;
+                        }
+                        else if (i <= endDay) {
+                            // noCount = 0;
+                        }
+                    }
+                    else if (nowMonth < endMonth) {
+
+                    }
+                }
+
+
+                // if (today.getFullYear() == startYear) { // 시작연도와 같으면서
+                //     if (nowMonth < realMonth) {         // 현재 달보다 작은 경우
+                //         noCount += 1;
+                //     } else if (nowMonth == realMonth) { // 현재 달과 같은 경우
+                //         if (i < startDay) {
+                //             noCount += 1;
+                //         }
+                //     }
+                // }
+                //
+                // // else
+                // if (today.getFullYear() > endYear) {            // 끝나는 연도보다 클 경우
+                //     noCount += 1;
+                // } else if (today.getFullYear() == endYear) {           // 끝나는 연도랑 같으면서
+                //     if (nowMonth > endMonth) {                        // 끝나는 달보다 클 경우
+                //         noCount += 1;
+                //     } else if (nowMonth == endMonth) {               // 끝나는 달과 같을 경우
+                //         if (i > endDay) {                           // 끝나는 일보다 클 경우
+                //             noCount += 1;
+                //         }
+                //     }
+                // }
+                // else if (today.getFullYear() < startYear) {       // 시작하는 연도보다 작을 경우
+                //     if (nowMonth == startMonth) {              // 시작하는 달과 같은 경우
+                //         if (i < startDay) {                         // 시작하는 일보다 작은 경우
+                //             noCount += 1;
+                //         }
+                //     // } else if (nowMonth < startMonth) {
+                //     //     noCount += 1;
+                //     // } else if (nowMonth > startMonth) {
+                //     //         // noCount = 0;
+                //     }
+                // }
 
 
 
@@ -469,8 +519,6 @@
           let month = selectedMonth;
           date = selectedDate;
           const timeTable = document.getElementById("timeTable");
-          console.log("selectedMonth: " + selectedMonth);
-          console.log("selectedDate: " + selectedDate);
           //테이블 초기화
           while(timeTable.rows.length > 0){
             timeTable.deleteRow(timeTable.rows.length-1);
@@ -503,7 +551,6 @@
                   cellTime = this.getAttribute('id');
                   cellTime = cellTime * 1;
 
-                  console.log("first : " + selectedFirstTime + ", selectedFinalTime : " + selectedFinalTime + ", selected : " + cellTime);
                   //예약일시 입력처리
                   // if (selectedFirstTime != 24 && selectedFinalTime != 0){
                   //   if(cellTime < selectedFirstTime - 1){
@@ -562,7 +609,6 @@
               for(j = 0; j < jsonObject.startNum.length; j++){
                 startNum = jsonObject.startNum[j];
                 shareTime = jsonObject.shareTime[j];
-                console.log("startNum: " + startNum + ", shareTime : " + shareTime);
                 for(k = startNum; k < startNum*1 + shareTime; k++){
                   cell = timeTable.rows[k].cells[0];
                   cell.style.backgroundColor = "#E0E0E0";
@@ -676,7 +722,8 @@
 
 <div class="mainBox">
     <div class="contentBox">
-        <form id="paymentForm" action="" method="post" name="paymentForm">
+        <c:url value="/content/reservation" var="reservation"/>
+        <form id="paymentForm" action="${reservation}" method="post" name="paymentForm">
         <div class="textLeft"><span style="color: #505050; font-size:40px; font-weight:700; margin-left:50px; font-family: LINESeedKR-Bd">${content.contentName}</span>
             <input class="form-control" type="hidden" name="contentName" value="${content.contentName}">
             <div class="underline"></div></div>

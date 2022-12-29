@@ -51,6 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         switch (clientName) {
             case "kakao":
                 email = getKakaoEmail(paramMap);
+                name = getKakaoNickname(paramMap);
                 break;
 
             case "Google":
@@ -137,6 +138,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
         return email;
+    }
+
+    private String getKakaoNickname(Map<String, Object> paramMap) {
+
+
+        Object value = paramMap.get("kakao_account");
+
+        LinkedHashMap accountMap = (LinkedHashMap) value;
+
+
+        Object nickname = accountMap.get("profile");
+
+        LinkedHashMap nickname1 = (LinkedHashMap) nickname;
+
+
+
+        String name = (String) nickname1.get("nickname");
+
+
+        return name;
     }
 
     // 구글 이메일 추출
